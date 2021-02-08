@@ -1,0 +1,15 @@
+name: sarscov2lineages
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - mafft
+  - biopython=1.74
+  - minimap2
+  - pip=19.3.1
+  - python=3.6
+  - ucsc-faSomeRecords
+  - ucsc-faSplit
+  - pip:
+    - pandas==1.0.1
