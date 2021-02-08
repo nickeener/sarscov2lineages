@@ -28,3 +28,18 @@ Three files will be produced by this pipeline:
 1. A VCF containing all variants (```[file].vcf```)
 2. A BED containing only variants that affect amino acid sequence (```[file]_aa.bed```)
 3. A BED containing all variants in the nucleotide form (```[file]_nuc.bed```)
+
+### Description of Pipeline
+
+1. SNPs were called by first aligning the lineage sequences using the alignment script ([global_profile_alignment.sh](https://github.com/nickeener/sarscov2lineages/blob/main/scripts/global_profile_alignment.sh)) from Rob Lanfear's [sarscov2phylo](https://github.com/roblanf/sarscov2phylo/) repository and then calling SNPs using the SARS-CoV-2 reference sequence and the faToVcf script (available on the UCSC download server [here](https://hgdownload.soe.ucsc.edu/admin/exe/)). SNPs present at a frequency above 0.95 are retained while all others are discarded. 
+2. For indel detection, the minimap2 suite of tools was used with the following command line call (Indels present at a frequency over 0.85 were retained):
+
+```minimap2 --cs [Reference Sequence] [Set of Unaligned Sequences] | paftools.js call -L 10000 -```
+
+3. The results are then combined and formatted by the [lineageVariants.py](https://github.com/nickeener/sarscov2lineages/blob/main/scripts/lineageVariants.py) script
+
+### Naming Conventions
+
+Variants in the amino acid track are named with the format: [*Reference amino acid*][*1-based coordinate in peptide*][*Alternate amino acid*] unless they are indels in which case they will be named as [del/ins]_[1-based genomic coordinate of first affected nucleotide] (variants that don't effect the amino acid sequence are not included in this track).
+
+Variants in the nucleotide track are named with the format: [*Reference nucleotide*][*1-based coordinate in genome*][*Alternate nucleotide*] (indels named with same format as an amino acid track).
