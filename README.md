@@ -22,3 +22,9 @@ Once you have the necessary dependencies and have set your optimal number of cor
 
 (The SARS-CoV-2 reference is also included in this repo as the file NC_045512.fa)
 
+### Outputs
+
+Three files will be produced by this pipeline:
+1. A VCF containing all variants (```[file].vcf```)
+2. A BED containing only variants that affect amino acid sequence (```[file]_aa.bed```)
+3. A BED containing all variants in the nucleotide form (```[file]_nuc.bed```)
