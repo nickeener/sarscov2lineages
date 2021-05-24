@@ -130,8 +130,6 @@ def createVCF(high_freq, chro, vars, vcf, samples, ref_seq):
 	all_data = pd.concat([snpVCF, del_data])
 	all_data = all_data.sort_values(['POS']).reset_index()
 	all_data['POS'] = all_data['POS'].astype(int)
-	for i in range(len(all_data)):
-		all_data.loc[i, '#CHROM'] = all_data.iloc[i]['#CHROM'].split('.')[0]+'v2'
 	all_data[all_data.columns[1:]].to_csv('.'.join(vars.split('.')[:-1])+'_nohead.vcf', sep='\t', index=None)
 	with open(vcf, 'r') as file:
 		header = file.readlines()[:3]
@@ -179,7 +177,7 @@ def createBED(high_freq, vars, vcf, samples, ref_seq):
 			new_idd = '_'.join(idd.split('_')[1:])
 			name.append(new_idd)
 	aa_bed_data = pd.DataFrame({'chrom':chrom, 'start':start, 'end':end, 'name':name})
-	aa_bed_data.to_csv('.'.join(vars.split('.')[:-2])+'_aa.bed', sep='\t', index=None)
+	aa_bed_data.to_csv('.'.join(vars.split('.')[:-2])+'_aa.bed', sep='\t', index=None, header=False)
 
 	# Create nucleotide variants BED
 	# Includes all variants
@@ -206,7 +204,7 @@ def createBED(high_freq, vars, vcf, samples, ref_seq):
 				end.append(pos+1)
 				name.append(f'ins_{pos+1}')
 	nuc_bed_data = pd.DataFrame({'chrom':chrom, 'start':start, 'end':end, 'name':name})
-	nuc_bed_data.to_csv('.'.join(vars.split('.')[:-2])+'_nuc.bed', sep='\t', index=None)
+	nuc_bed_data.to_csv('.'.join(vars.split('.')[:-2])+'_nuc.bed', sep='\t', index=None, header=False)
 
 
 def genome2Peptide(genome_coord, alt, ref, ref_seq):
