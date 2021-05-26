@@ -83,9 +83,9 @@ def createVCF(high_freq, chro, vars, vcf, samples, ref_seq):
 	for i in range(len(snpVCF)):
 		code, codon_start, peptide = genome2Peptide(snpVCF.iloc[i]['POS']-1, snpVCF.iloc[i]['ALT'], snpVCF.iloc[i]['REF'], ref_seq)
 		if code[0] == code[-1]:
-			snpVCF.loc[i, 'ID'] = f'{peptide}_syn'
+			snpVCF.loc[i, 'ID'] = f'{peptide}:syn'
 		else:
-			snpVCF.loc[i, 'ID'] = f'{peptide}_{code}'
+			snpVCF.loc[i, 'ID'] = f'{peptide}:{code}'
 		info = snpVCF.iloc[i]['INFO']
 		ac = int(info.split('=')[1].split(';')[0])
 		an = int(info.split('=')[-1])
@@ -106,7 +106,7 @@ def createVCF(high_freq, chro, vars, vcf, samples, ref_seq):
 		for alleles in high_freq[coords].keys():
 			code, codon_start, peptide = genome2Peptide(coords[0], alleles[1], alleles[0], ref_seq)
 			chrom.append(chro)
-			idd.append(f'{peptide}_{code}')
+			idd.append(f'{peptide}:{code}')
 			if alleles[1] == '-':
 				pos.append(coords[0])
 				new_alt, new_ref = vcfDeletionFormat(coords[0], alleles[0], ref_seq)
@@ -130,8 +130,6 @@ def createVCF(high_freq, chro, vars, vcf, samples, ref_seq):
 	all_data = pd.concat([snpVCF, del_data])
 	all_data = all_data.sort_values(['POS']).reset_index()
 	all_data['POS'] = all_data['POS'].astype(int)
-	for i in range(len(all_data)):
-		all_data.loc[i, '#CHROM'] = all_data.iloc[i]['#CHROM'].split('.')[0]+'v2'
 	all_data[all_data.columns[1:]].to_csv('.'.join(vars.split('.')[:-1])+'_nohead.vcf', sep='\t', index=None)
 	with open(vcf, 'r') as file:
 		header = file.readlines()[:3]
@@ -176,10 +174,9 @@ def createBED(high_freq, vars, vcf, samples, ref_seq):
 				elif len(alt) > 1:
 					start.append(pos)
 					end.append(pos+1)
-			new_idd = '_'.join(idd.split('_')[1:])
-			name.append(new_idd)
+			name.append(idd)
 	aa_bed_data = pd.DataFrame({'chrom':chrom, 'start':start, 'end':end, 'name':name})
-	aa_bed_data.to_csv('.'.join(vars.split('.')[:-2])+'_aa.bed', sep='\t', index=None)
+	aa_bed_data.to_csv('.'.join(vars.split('.')[:-2])+'_aa.bed', sep='\t', index=None, header=False)
 
 	# Create nucleotide variants BED
 	# Includes all variants
@@ -206,7 +203,7 @@ def createBED(high_freq, vars, vcf, samples, ref_seq):
 				end.append(pos+1)
 				name.append(f'ins_{pos+1}')
 	nuc_bed_data = pd.DataFrame({'chrom':chrom, 'start':start, 'end':end, 'name':name})
-	nuc_bed_data.to_csv('.'.join(vars.split('.')[:-2])+'_nuc.bed', sep='\t', index=None)
+	nuc_bed_data.to_csv('.'.join(vars.split('.')[:-2])+'_nuc.bed', sep='\t', index=None, header=False)
 
 
 def genome2Peptide(genome_coord, alt, ref, ref_seq):
@@ -220,8 +217,9 @@ def genome2Peptide(genome_coord, alt, ref, ref_seq):
 	'''
 
 	# Dictionary containing 1-based start/end coordinates of the peptides in the SARS-CoV-2 genome
+    # From https://www.ncbi.nlm.nih.gov/nuccore/NC_045512.2
 	genes = {"5'UTR": (1,265),
-		     'leader': (266,805),
+		     'nsp1': (266,805),
 			 'nsp2': (806,2719),
 			 'nsp3': (2720,8554),
 			 'nsp4': (8555,10054),
@@ -233,20 +231,20 @@ def genome2Peptide(genome_coord, alt, ref, ref_seq):
 			 'nsp10': (13025,13441),
 			 'nsp11': (13442,13480),
 			 'RdRp': (13442,16236),
-			 'helicase': (16237,18039),
-			 'exonuclease': (18040,19620),
-			 'endoRNAse': (19621,20658),
-			 'methyltransferase': (20659,21552),
-			 'spike': (21563,25384),
-			 'orf3a': (25393,26220),
+			 'Hel': (16237,18039),
+			 'ExoN': (18040,19620),
+			 'nsp15': (19621,20658),
+			 'MT': (20659,21552),
+			 'S': (21563,25384),
+			 'ORF3a': (25393,26220),
 			 'E': (26245,26472),
 			 'M': (26523,27191),
-			 'orf6': (27202,27387),
-			 'orf7a': (27394,27759),
-			 'orf7b': (27756,27887),
-			 'orf8': (27894,28259),
+			 'ORF6': (27202,27387),
+			 'ORF7a': (27394,27759),
+			 'ORF7b': (27756,27887),
+			 'ORF8': (27894,28259),
 			 'N': (28274,29533),
-			 'orf10': (29558,29674),
+			 'ORF10': (29558,29674),
 			 "3'UTR": (29675, 29903)}
 	RdRp_slip = 13467 # 1-based genome coordinate of RdRp ribosomal slippage site
 	for record in SeqIO.parse(ref_seq, 'fasta'):

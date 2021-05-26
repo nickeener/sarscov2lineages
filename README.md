@@ -31,7 +31,7 @@ Three files will be produced by this pipeline:
 
 ### Description of Pipeline
 
-1. SNPs were called by first aligning the lineage sequences using the alignment script ([global_profile_alignment.sh](https://github.com/nickeener/sarscov2lineages/blob/main/scripts/global_profile_alignment.sh)) from Rob Lanfear's [sarscov2phylo](https://github.com/roblanf/sarscov2phylo/) repository and then calling SNPs using the SARS-CoV-2 reference sequence and the faToVcf script (available on the UCSC download server [here](https://hgdownload.soe.ucsc.edu/admin/exe/)). SNPs present at a frequency above 0.95 are retained while all others are discarded. 
+1. SNPs are called by first aligning the lineage sequences using the alignment script ([global_profile_alignment.sh](https://github.com/nickeener/sarscov2lineages/blob/main/scripts/global_profile_alignment.sh)) from Rob Lanfear's [sarscov2phylo](https://github.com/roblanf/sarscov2phylo/) repository and then calling SNPs using the SARS-CoV-2 reference sequence and the vcfFilter program (available on the UCSC download server [here](https://hgdownload.soe.ucsc.edu/admin/exe/)). SNPs present at a frequency above 0.95 are retained while all others are discarded. 
 2. For indel detection, the minimap2 suite of tools was used with the following command line call (Indels present at a frequency over 0.85 were retained):
 
 ```minimap2 --cs [Reference Sequence] [Set of Unaligned Sequences] | paftools.js call -L 10000 -```
